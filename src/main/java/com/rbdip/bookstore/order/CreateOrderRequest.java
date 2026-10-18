@@ -1,15 +1,22 @@
 package com.rbdip.bookstore.order;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.util.List;
 
 public record CreateOrderRequest(
-        String customerFullName,
-        String customerAddress,
+        @NotBlank String customerFullName,
+        @NotBlank String customerAddress,
         String customerPhone,
         String customerType,
         String couponCode,
-        List<Item> items) {
+        @NotEmpty List<Item> items) {
 
-    public record Item(Long productId, Integer quantity) {
+    public record Item(
+            @NotNull Long productId,
+            @Positive Integer quantity) {
     }
 }

@@ -2,6 +2,8 @@ package com.rbdip.bookstore.order;
 
 import java.util.List;
 import java.util.Map;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +27,7 @@ public class OrderController {
 
     @PostMapping("/orders")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Object> createOrder(@RequestBody CreateOrderRequest request) {
+    public Map<String, Object> createOrder(@RequestBody @Valid CreateOrderRequest request) {
         Order order = orderService.createOrder(request);
         return Map.of("id", order.getId(), "status", order.getStatus());
     }
@@ -38,7 +40,7 @@ public class OrderController {
                     // N+1: отдельный запрос на позиции для каждого заказа вместо
                     // одного JOIN FETCH / batch-запроса. Цель для ЛР4.
                     List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
-                    return Map.<String, Object>of(
+                    return Map.of(
                             "id", order.getId(),
                             "customerFullName", order.getCustomerFullName(),
                             "status", order.getStatus(),
