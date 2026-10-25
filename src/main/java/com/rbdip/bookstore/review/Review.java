@@ -28,7 +28,7 @@ public class Review {
     private String comment;
 
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt = Instant.now();
+    private final Instant createdAt = Instant.now();
 
     protected Review() {
         // for JPA

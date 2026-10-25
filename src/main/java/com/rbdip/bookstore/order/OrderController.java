@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 public class OrderController {
@@ -33,6 +34,7 @@ public class OrderController {
     }
 
     @GetMapping("/orders")
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> listOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
@@ -42,10 +44,10 @@ public class OrderController {
                     List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
                     return Map.of(
                             "id", order.getId(),
-                            "customerFullName", order.getCustomerFullName(),
+                            "customerFullName", order.getCustomer().getFullName(),
                             "status", order.getStatus(),
                             "items", items.stream()
-                                    .map(i -> Map.of("productName", i.getProductName(), "quantity", i.getQuantity()))
+                                    .map(i -> Map.of("productName", i.getProduct().getName(), "quantity", i.getQuantity()))
                                     .toList());
                 })
                 .toList();

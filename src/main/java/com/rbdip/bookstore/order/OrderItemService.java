@@ -22,7 +22,7 @@ public class OrderItemService {
             Product product = products.get(i);
             int quantity = lineItems.get(i).quantity();
 
-            orderItems.add(i, new OrderItem(orderId, product.getName(), product.getPrice(), quantity));
+            orderItems.add(i, new OrderItem(orderId, product, quantity));
         }
 
         orderItemRepository.saveAll(orderItems);
