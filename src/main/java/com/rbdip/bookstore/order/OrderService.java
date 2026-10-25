@@ -1,6 +1,8 @@
 package com.rbdip.bookstore.order;
 
 import com.rbdip.bookstore.confirmation.ConfirmationService;
+import com.rbdip.bookstore.customer.Customer;
+import com.rbdip.bookstore.customer.CustomerService;
 import com.rbdip.bookstore.product.Product;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,15 +24,18 @@ public class OrderService {
     private final OrderItemService orderItemService;
     private final ConfirmationService confirmationService;
     private final PricingCalculator pricingCalculator = new PricingCalculator();
+    private final CustomerService customerService;
 
     public OrderService(
             ProductService productService,
             OrderRepository orderRepository,
             OrderItemService orderItemService,
+            CustomerService customerService,
             ConfirmationService confirmationService) {
         this.productService = productService;
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
+        this.customerService = customerService;
         this.confirmationService = confirmationService;
     }
 
@@ -44,8 +49,9 @@ public class OrderService {
         BigDecimal total = pricingCalculator.calculateOrderTotal(
                 lineItems, request.customerType() == null ? "regular" : request.customerType(), request.couponCode());
 
-        Order order = orderRepository.save(new Order(
-                request.customerFullName(), request.customerAddress(), request.customerPhone(), "new"));
+        Customer customer = customerService.findOrRegistryByPhone(request.customerPhone(), request.customerFullName(), request.customerAddress());
+
+        Order order = orderRepository.save(new Order(customer, "new"));
 
         orderItemService.saveOrderItems(order.getId(), products, lineItems);
 
@@ -55,7 +61,7 @@ public class OrderService {
     }
 
     private List<PricingCalculator.LineItem> getLineItemsByProductsAndItem(List<Product> products, List<CreateOrderRequest.Item> items) {
-        ArrayList<PricingCalculator.LineItem> lineItems = new ArrayList<>(products.size());
+        List<PricingCalculator.LineItem> lineItems = new ArrayList<>(products.size());
         for (int i = 0; i < products.size(); i++) {
             Product product = products.get(i);
             CreateOrderRequest.Item item = items.get(i);
